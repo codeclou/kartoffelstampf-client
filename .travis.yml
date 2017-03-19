@@ -3,6 +3,8 @@ node_js:
   - "6"
 install:
   - npm install -g @angular/cli
+  - npm install -g node-deploy-essentials
   - npm install
 after_success:
   - npm run build
+  - script: ./scripts/run-tests.sh
