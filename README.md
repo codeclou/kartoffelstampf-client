@@ -9,7 +9,7 @@ Microservice of Kartoffelstampf Project that provides the UI as a Browser Single
 
 ### Development
 
-See [DEVELOPMENT.md](./DEVELOPMENT.md)
+See [DEVELOPMENT.md](./DEVELOPMENT.md).
 
 -----
 
