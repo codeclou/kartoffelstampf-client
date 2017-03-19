@@ -15,7 +15,7 @@ install:
   - npm install -g @angular/cli
   - npm install
 after_success:
-  - npm run build
+  - ng build -prod
   - cd dist
   - zip dist.zip $(find . -mindepth 1 -not -iwholename "*.git*")
   - mv dist.zip ../
