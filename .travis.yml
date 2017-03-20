@@ -15,10 +15,11 @@ install:
   - npm install -g @angular/cli
   - npm install
 after_success:
-  - ng build -prod
+  - ng build -prod # karma.conf.js -> singleRun = true !
   - cd dist
   - zip dist.zip $(find . -mindepth 1 -not -iwholename "*.git*")
   - mv dist.zip ../
+  - cd ../
 deploy:
   provider: releases
   api_key: $GITHUB_AUTH_TOKEN
