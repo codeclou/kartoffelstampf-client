@@ -21,6 +21,9 @@ e.g. https://github.com/codeclou/kartoffelstampf-client/releases/download/0.0.2/
 This is then used by Dockerized-Kartoffelstampf as Dependency.
 
 
+### Angular CLI Customizations
+
+ * We use `scss` instead of `css`. Therefore we switched to `ng set defaults.styleExt scss`
 
 
 ### Angular CLI
