@@ -6,6 +6,7 @@ import { HttpModule } from '@angular/http';
 import { AppComponent } from './app.component';
 import { UploadPageComponent } from './upload-page/upload-page.component';
 import { RouterModule, Routes } from '@angular/router';
+import { BackendService } from './backend.service';
 
 const appRoutes: Routes = [
   { path: 'upload', component: UploadPageComponent },
@@ -28,7 +29,7 @@ const appRoutes: Routes = [
     FormsModule,
     HttpModule
   ],
-  providers: [],
+  providers: [BackendService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

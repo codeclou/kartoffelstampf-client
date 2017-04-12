@@ -21,6 +21,12 @@
       "styles": [
         "styles.scss"
       ],
+      "stylePreprocessorOptions": {
+        "see": "https://github.com/angular/angular-cli/wiki/stories-global-styles",
+        "includePaths": [
+          "styles"
+        ]
+      },
       "scripts": [],
       "environmentSource": "environments/environment.ts",
       "environments": {
