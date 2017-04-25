@@ -1,18 +1,16 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import { AnserJsonEntry } from '../types/anser';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ansiToJson, ansiToHtml } from 'anser';
-import { TerminalLine } from "../types/kartoffelstampf-client";
-import {KartoffelstampfTerminalOutputEntry} from "../types/kartoffelstampf-server";
-import {isNullOrUndefined} from "util";
+import { TerminalLine } from '../types/kartoffelstampf-client';
 
 @Component({
   selector: 'app-terminal-output',
   templateUrl: './terminal-output.component.html',
   styleUrls: ['./terminal-output.component.scss']
 })
-export class TerminalOutputComponent implements OnInit {
+export class TerminalOutputComponent {
 
   linesInternal: TerminalLine[] = [];
+  @Output() linesChange = new EventEmitter();
 
   constructor() { }
 
@@ -23,16 +21,7 @@ export class TerminalOutputComponent implements OnInit {
     return text;
   };
 
-  ngOnInit() {
-  }
-
-  // TWO WAY BINDING HOWTO: https://blog.thoughtram.io/angular/2016/10/13/two-way-data-binding-in-angular-2.html
-
-  @Output()
-  linesChange = new EventEmitter();
-
-  @Input()
-  get lines() {
+  @Input() get lines() {
     return this.linesInternal;
   }
 

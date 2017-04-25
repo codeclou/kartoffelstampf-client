@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { KartoffelstampfTerminalOutputEntry } from './types/kartoffelstampf-server';
 
 @Injectable()
 export class BackendService {
@@ -6,7 +7,8 @@ export class BackendService {
   constructor() { }
 
   runCommand(callback) {
-    const ws = new WebSocket("ws://localhost:9999/");
+
+    const ws = new WebSocket(`ws://${window.location.hostname}:9999/`);
     ws.onopen = function (event) {
       ws.send(JSON.stringify({
         command: 'optipng',
@@ -17,8 +19,8 @@ export class BackendService {
       }));
     };
     ws.onmessage = function(event) {
-      // Returns: KartoffelstampfTerminalOutputEntry
-      callback(JSON.parse(event.data));
+      const kartoffelstampfTerminalOutputEntry: KartoffelstampfTerminalOutputEntry = JSON.parse(event.data);
+      callback(kartoffelstampfTerminalOutputEntry);
     };
   }
 

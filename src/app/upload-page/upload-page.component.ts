@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { BackendService } from '../backend.service';
 import { ansiToJson, ansiToHtml} from 'anser';
 import { KartoffelstampfTerminalOutputEntry } from '../types/kartoffelstampf-server';
-import {TerminalLine} from "../types/kartoffelstampf-client";
+import { TerminalLine } from '../types/kartoffelstampf-client';
 
 @Component({
   selector: 'app-upload-page',
@@ -24,7 +24,7 @@ export class UploadPageComponent implements OnInit {
       terminalLine.json = ansiToJson(data.payload.text)[0];
       terminalLine.html = ansiToHtml(data.payload.text);
       terminalLine.clearLine = terminalLine.json.clearLine;
-      const previousTerminalLine = self.terminalLines[self.terminalLines.length-1];
+      const previousTerminalLine = self.terminalLines[self.terminalLines.length - 1];
       if (previousTerminalLine !== undefined && previousTerminalLine.clearLine === true && terminalLine.clearLine === true) {
         self.terminalLines.pop();
       }
