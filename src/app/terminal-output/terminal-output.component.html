@@ -1,0 +1,10 @@
+<p>
+  terminal-output works!
+  x
+</p>
+
+<div *ngFor="let line of lines; let i=index" class="{{ line.type }}">
+  <div [innerHTML]="replaceNewlineWithBr(line.html)"></div>
+</div>
+
+

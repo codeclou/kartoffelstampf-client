@@ -7,6 +7,7 @@ import { AppComponent } from './app.component';
 import { UploadPageComponent } from './upload-page/upload-page.component';
 import { RouterModule, Routes } from '@angular/router';
 import { BackendService } from './backend.service';
+import { TerminalOutputComponent } from './terminal-output/terminal-output.component';
 
 const appRoutes: Routes = [
   { path: 'upload', component: UploadPageComponent },
@@ -21,7 +22,8 @@ const appRoutes: Routes = [
 @NgModule({
   declarations: [
     AppComponent,
-    UploadPageComponent
+    UploadPageComponent,
+    TerminalOutputComponent
   ],
   imports: [
     RouterModule.forRoot(appRoutes),
