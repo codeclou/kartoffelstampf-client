@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { ansiToJson, ansiToHtml } from 'anser';
 import { TerminalLine } from '../types/kartoffelstampf-client';
 
 @Component({

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BackendService } from '../backend.service';
-import { ansiToJson, ansiToHtml} from 'anser';
+import Anser from 'anser';
 import { KartoffelstampfTerminalOutputEntry } from '../types/kartoffelstampf-server';
 import { TerminalLine } from '../types/kartoffelstampf-client';
 
@@ -21,8 +21,8 @@ export class UploadPageComponent implements OnInit {
     this.backendService.runCommand((data: KartoffelstampfTerminalOutputEntry) => {
       const terminalLine = new TerminalLine();
       terminalLine.type = data.type;
-      terminalLine.json = ansiToJson(data.payload.text)[0];
-      terminalLine.html = ansiToHtml(data.payload.text);
+      terminalLine.json = Anser.ansiToJson(data.payload.text)[0];
+      terminalLine.html = Anser.ansiToHtml(data.payload.text);
       terminalLine.clearLine = terminalLine.json.clearLine;
       const previousTerminalLine = self.terminalLines[self.terminalLines.length - 1];
       if (previousTerminalLine !== undefined && previousTerminalLine.clearLine === true && terminalLine.clearLine === true) {

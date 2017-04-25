@@ -19,7 +19,7 @@
     "@angular/platform-browser": "^4.0.0",
     "@angular/platform-browser-dynamic": "^4.0.0",
     "@angular/router": "^4.0.0",
-    "anser": "^1.2.7",
+    "anser": "git+https://github.com/clouless/anser.git#ba49f9e4a1c12ba4dd44a23fce2ffeba16d69573",
     "bootstrap": "4.0.0-alpha.6",
     "core-js": "^2.4.1",
     "rxjs": "^5.1.0",
