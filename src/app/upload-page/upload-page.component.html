@@ -1,5 +1,8 @@
 <div class="container">
-  upload-page works!
+  <input type="file" (change)="processFileToBase64DataURI($event)">
+  <pre>{{uploadedFileBase64URI}}</pre>
+  <p>{{compressDone}}</p>
+  <a *ngIf="compressDone == true" [href]="getDownloadUrl()">download</a>
   <h3>Terminal output</h3>
   <app-terminal-output [lines]="terminalLines"></app-terminal-output>
 </div>

@@ -10,3 +10,11 @@ export interface KartoffelstampfTerminalOutputEntry {
   payload: KartoffelstampfTerminalOutputEntryPayload;
   type: string;
 }
+
+export interface KartoffelstampfImageUploadRequest {
+  fileContent: string;
+  fileType: string;
+}
+export interface KartoffelstampfImageUploadResponse {
+  fileName: string;
+}

@@ -43,7 +43,7 @@ export class TerminalOutputComponent {
       return text.replace(/\n/g, '<br/>');
     }
     return text;
-  };
+  }
 
   @Input() get lines() {
     return this.linesInternal;
