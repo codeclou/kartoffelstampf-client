@@ -3,7 +3,9 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styles: [
+    '.foo {}'
+  ]
 })
 export class AppComponent {
   logoSrc = '/assets/images/logo-small.svg';
