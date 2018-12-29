@@ -26,7 +26,7 @@ const appRoutes: Routes = [
     TerminalOutputComponent
   ],
   imports: [
-    RouterModule.forRoot(appRoutes),
+    RouterModule.forRoot(appRoutes, { useHash: true }),
     BrowserModule,
     FormsModule,
     HttpClientModule
