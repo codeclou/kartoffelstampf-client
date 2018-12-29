@@ -1,8 +1,14 @@
 <div class="container">
   <input type="file" (change)="processFileToBase64DataURI($event)">
-  <pre>{{uploadedFileBase64URI}}</pre>
-  <p>{{compressDone}}</p>
+  <p *ngIf="originalFileName && !compressDone!">COMPRESSING PLEASE WAIT ...</p>
+  <p *ngIf="originalFileName && compressDone!">COMPRESSING DONE :)</p>
+  <div *ngIf="originalFileName">
+    <h3>{{originalFileName}}</h3>
+    <app-terminal-output
+      [temporaryFileName]="temporaryFileName"
+      [originalFileName]="originalFileName"
+      [lines]="terminalLines"
+    ></app-terminal-output>
+  </div>
   <a *ngIf="compressDone == true" [href]="getDownloadUrl()">download</a>
-  <h3>Terminal output</h3>
-  <app-terminal-output [lines]="terminalLines"></app-terminal-output>
 </div>

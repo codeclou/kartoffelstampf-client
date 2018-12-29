@@ -12,9 +12,17 @@ export interface KartoffelstampfTerminalOutputEntry {
 }
 
 export interface KartoffelstampfImageUploadRequest {
-  fileContent: string;
-  fileType: string;
+  contentDataUri: string;
 }
 export interface KartoffelstampfImageUploadResponse {
   fileName: string;
+}
+
+export class KartoffelstampfCompressInstruction {
+
+  public static COMPRESS_TYPE_LOSSLESS = 'LOSSLESS';
+
+  public compressType: string;
+  public temporaryFileName: string;
+
 }

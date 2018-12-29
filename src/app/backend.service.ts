@@ -3,6 +3,7 @@ import {
   KartoffelstampfTerminalOutputEntry,
   KartoffelstampfImageUploadResponse,
   KartoffelstampfImageUploadRequest,
+  KartoffelstampfCompressInstruction,
  } from './types/kartoffelstampf-server';
 import { Observable, Subject, throwError } from 'rxjs';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
@@ -24,16 +25,14 @@ export class BackendService {
 
   constructor(private http: HttpClient) { }
 
-  getDownloadUrl(filePathOnServer: string) {
-    return BackendService.REST_API_DOWNLOAD_URL + '/' + filePathOnServer;
+  getDownloadUrl(temporaryFileName: string, originalFileName: string) {
+    return `${BackendService.REST_API_DOWNLOAD_URL}/${temporaryFileName}/${originalFileName}`;
   }
 
   uploadImage(base64Image: string, type: string) {
-    const sanitizedBase64 = base64Image.replace('data:image/png;base64,', '');
     return this.http.post<KartoffelstampfImageUploadResponse>(
       BackendService.REST_API_UPLOAD_URL, {
-        fileContent: sanitizedBase64,
-        fileType: type
+        contentDataUri: base64Image,
       } as KartoffelstampfImageUploadRequest, httpOptions)
     .pipe(
       catchError((e: HttpErrorResponse) => {
@@ -45,17 +44,11 @@ export class BackendService {
     );
   }
 
-  runCompressPngCommand(filePathOnServer: string): Observable<KartoffelstampfTerminalOutputEntry> {
+  runCompressCommand(compressInstruction: KartoffelstampfCompressInstruction): Observable<KartoffelstampfTerminalOutputEntry> {
     const ws = new WebSocket(BackendService.WEB_SOCKET_COMPRESS_URL);
     const subject = new Subject<KartoffelstampfTerminalOutputEntry>();
     ws.onopen = function (event) {
-      ws.send(JSON.stringify({
-        command: 'optipng',
-        commandArguments: [
-          '-o5',
-          '/u/' + filePathOnServer // e.g. foo.png
-        ]
-      }));
+      ws.send(JSON.stringify(compressInstruction));
     };
     ws.onmessage = function(event: MessageEvent) {
       const kartoffelstampfTerminalOutputEntry: KartoffelstampfTerminalOutputEntry = JSON.parse(event.data);

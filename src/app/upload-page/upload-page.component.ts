@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BackendService } from '../backend.service';
-import { KartoffelstampfTerminalOutputEntry } from '../types/kartoffelstampf-server';
+import { KartoffelstampfTerminalOutputEntry, KartoffelstampfCompressInstruction } from '../types/kartoffelstampf-server';
 import { TerminalLine } from '../types/kartoffelstampf-client';
 import { finalize } from 'rxjs/operators';
 
@@ -14,7 +14,8 @@ export class UploadPageComponent implements OnInit {
 
   terminalLines: TerminalLine[] = [];
   uploadedFileBase64URI: string;
-  compressedFilePath: string;
+  originalFileName: string;
+  temporaryFileName: string;
   compressDone = false;
 
   constructor(private backendService: BackendService) { }
@@ -29,13 +30,14 @@ export class UploadPageComponent implements OnInit {
     const el = event.srcElement as HTMLInputElement;
     if (el.files && el.files[0]) {
       const fileReader = new FileReader();
+      self.originalFileName = el.files[0].name;
       fileReader.addEventListener('load', function(loadedEvent: any) {
         self.uploadedFileBase64URI = loadedEvent.target.result;
         // Upload via backend
         self.backendService.uploadImage(self.uploadedFileBase64URI, 'PNG')
         .subscribe(uploadResponse => {
           console.log(uploadResponse.fileName);
-          self.compressedFilePath = uploadResponse.fileName;
+          self.temporaryFileName = uploadResponse.fileName;
           self.runCompressCommand();
         });
       });
@@ -44,12 +46,15 @@ export class UploadPageComponent implements OnInit {
   }
 
   getDownloadUrl() {
-    return this.backendService.getDownloadUrl(this.compressedFilePath);
+    return this.backendService.getDownloadUrl(this.temporaryFileName, this.originalFileName);
   }
 
   runCompressCommand() {
     const self = this;
-    self.backendService.runCompressPngCommand(self.compressedFilePath)
+    self.backendService.runCompressCommand(<KartoffelstampfCompressInstruction>{
+      compressType: KartoffelstampfCompressInstruction.COMPRESS_TYPE_LOSSLESS,
+      temporaryFileName: this.temporaryFileName,
+    })
     .pipe(
       finalize(() => {
         console.log('compress-done!');
