@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { BackendService } from '../backend.service';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { BackendService } from '../services/backend.service';
 import { KartoffelstampfTerminalOutputEntry, KartoffelstampfCompressInstruction } from '../types/kartoffelstampf-server';
 import { TerminalLine } from '../types/kartoffelstampf-client';
-import { finalize } from 'rxjs/operators';
+import { finalize, takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-upload-page',
@@ -22,8 +23,9 @@ import { finalize } from 'rxjs/operators';
    ],
   providers: [BackendService]
 })
-export class UploadPageComponent implements OnInit {
+export class UploadPageComponent implements OnInit, OnDestroy {
 
+  preDestroy = new Subject<boolean>();
   terminalLines: TerminalLine[] = [];
   uploadedFileBase64URI: string;
   originalFileName: string;
@@ -34,9 +36,19 @@ export class UploadPageComponent implements OnInit {
   uiStateDragOver = false;
   uiStateDragLeave = true;
 
+  activeStep = 1;
+
   constructor(private backendService: BackendService) { }
 
-  ngOnInit() { }
+  ngOnInit() {
+    // since router strategy is to forcefully NOT reuse page components.
+    // The Component is reiniated automatically on browse to /upload
+  }
+
+  ngOnDestroy() {
+    this.preDestroy.next(true);
+    this.preDestroy.complete();
+  }
 
   handleDrop(event: any) {
     this.uiStateDragOver = false;
@@ -77,7 +89,11 @@ export class UploadPageComponent implements OnInit {
       fileReader.addEventListener('load', function(loadedEvent: any) {
         self.uploadedFileBase64URI = loadedEvent.target.result;
         // Upload via backend
-        self.backendService.uploadImage(self.uploadedFileBase64URI, 'PNG')
+        self.backendService
+        .uploadImage(self.uploadedFileBase64URI, 'PNG')
+        .pipe(
+          takeUntil(self.preDestroy)
+        )
         .subscribe(uploadResponse => {
           console.log(uploadResponse.fileName);
           self.temporaryFileName = uploadResponse.fileName;
@@ -85,6 +101,7 @@ export class UploadPageComponent implements OnInit {
         });
       });
       fileReader.readAsDataURL(files[0]);
+      self.activeStep = 2;
     }
   }
 
@@ -102,7 +119,8 @@ export class UploadPageComponent implements OnInit {
       finalize(() => {
         console.log('compress-done!');
         self.compressDone = true;
-      })
+      }),
+      takeUntil(self.preDestroy)
     )
     .subscribe(data => {
       const terminalLine = new TerminalLine(data);

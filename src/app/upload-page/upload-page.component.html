@@ -1,5 +1,11 @@
 <div class="container">
+  <app-numbered-headline
+    number="1"
+    headline="Drop Images and Upload"
+    [isActive]="activeStep == 1"
+  ></app-numbered-headline>
   <div
+    *ngIf="activeStep == 1"
     class="drop-container"
     [class.drop-container---drag-over]="uiStateDragOver"
     [class.drop-container---drag-leave]="uiStateDragLeave"
@@ -8,13 +14,18 @@
     (dragover)="handleDragOver($event)"
     (dragleave)="handleDragLeave($event)"
   >
-
     <input
       type="file"
       multiple="multiple"
       (change)="handleFileChange($event)"
     >
   </div>
+  <!-- ========== -->
+  <app-numbered-headline
+    number="2"
+    headline="Compress and Download"
+    [isActive]="activeStep == 2"
+  ></app-numbered-headline>
   <app-spinner *ngIf="originalFileName && !compressDone!"></app-spinner>
   <div *ngIf="originalFileName">
     <h3>{{originalFileName}}</h3>

@@ -4,7 +4,7 @@ import {
   KartoffelstampfImageUploadResponse,
   KartoffelstampfImageUploadRequest,
   KartoffelstampfCompressInstruction,
- } from './types/kartoffelstampf-server';
+ } from '../types/kartoffelstampf-server';
 import { Observable, Subject, throwError } from 'rxjs';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { catchError } from 'rxjs/operators';

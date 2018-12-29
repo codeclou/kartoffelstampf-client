@@ -5,10 +5,12 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { UploadPageComponent } from './upload-page/upload-page.component';
-import { RouterModule, Routes } from '@angular/router';
-import { BackendService } from './backend.service';
+import { RouterModule, Routes, RouteReuseStrategy } from '@angular/router';
+import { BackendService } from './services/backend.service';
 import { TerminalOutputComponent } from './terminal-output/terminal-output.component';
 import { SpinnerComponent } from './stateless/spinner.component';
+import { NumberedHeadlineComponent } from './stateless/numbered-headline.component';
+import { ForceRouteReuseStrategy } from './stateless/force-route-reuse-strategy';
 
 const appRoutes: Routes = [
   { path: 'upload', component: UploadPageComponent },
@@ -25,7 +27,8 @@ const appRoutes: Routes = [
     AppComponent,
     UploadPageComponent,
     TerminalOutputComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    NumberedHeadlineComponent,
   ],
   imports: [
     RouterModule.forRoot(appRoutes, { useHash: true }),
@@ -33,7 +36,13 @@ const appRoutes: Routes = [
     FormsModule,
     HttpClientModule
   ],
-  providers: [BackendService],
+  providers: [
+    BackendService,
+    {
+      provide: RouteReuseStrategy,
+      useClass: ForceRouteReuseStrategy
+    },
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
