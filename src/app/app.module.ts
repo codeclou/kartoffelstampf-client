@@ -8,6 +8,7 @@ import { UploadPageComponent } from './upload-page/upload-page.component';
 import { RouterModule, Routes } from '@angular/router';
 import { BackendService } from './backend.service';
 import { TerminalOutputComponent } from './terminal-output/terminal-output.component';
+import { SpinnerComponent } from './stateless/spinner.component';
 
 const appRoutes: Routes = [
   { path: 'upload', component: UploadPageComponent },
@@ -23,7 +24,8 @@ const appRoutes: Routes = [
   declarations: [
     AppComponent,
     UploadPageComponent,
-    TerminalOutputComponent
+    TerminalOutputComponent,
+    SpinnerComponent
   ],
   imports: [
     RouterModule.forRoot(appRoutes, { useHash: true }),

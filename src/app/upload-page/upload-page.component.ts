@@ -7,7 +7,19 @@ import { finalize } from 'rxjs/operators';
 @Component({
   selector: 'app-upload-page',
   templateUrl: './upload-page.component.html',
-  styles: [ ],
+  styles: [
+    `.drop-container {
+      width:100%;
+      height:120px;
+      border:3px dashed #ccc;
+      display:flex;
+      justify-content: center;
+      align-items: center;
+    }`,
+    `.drop-container---drag-over { border-color: #0DFF0D; }`,
+    `.drop-container---drag-leave { border-color: #ccc; }`,
+    `.drop-container---drag-drop { border-color: #00A200; }`,
+   ],
   providers: [BackendService]
 })
 export class UploadPageComponent implements OnInit {
@@ -18,19 +30,50 @@ export class UploadPageComponent implements OnInit {
   temporaryFileName: string;
   compressDone = false;
 
+  uiStateDrop = false;
+  uiStateDragOver = false;
+  uiStateDragLeave = true;
+
   constructor(private backendService: BackendService) { }
 
-  ngOnInit() {
-    const self = this;
-    // self.runCompressCommand();
+  ngOnInit() { }
+
+  handleDrop(event: any) {
+    this.uiStateDragOver = false;
+    this.uiStateDragLeave = false;
+    this.uiStateDrop = true;
+    event.stopPropagation();
+    event.preventDefault();
+    this.processFileToBase64DataURI(<FileList>event.dataTransfer.files);
   }
 
-  processFileToBase64DataURI(event: Event) {
-    const self = this;
+  handleDragOver(event: Event) {
+    this.uiStateDragOver = true;
+    this.uiStateDragLeave = false;
+    this.uiStateDrop = false;
+    event.stopPropagation();
+    event.preventDefault();
+  }
+
+  handleDragLeave(event: Event) {
+    this.uiStateDragOver = false;
+    this.uiStateDragLeave = true;
+    this.uiStateDrop = false;
+    event.stopPropagation();
+    event.preventDefault();
+  }
+
+  /* classic file input field */
+  handleFileChange(event: any) {
     const el = event.srcElement as HTMLInputElement;
-    if (el.files && el.files[0]) {
+    this.processFileToBase64DataURI(el.files);
+  }
+
+  processFileToBase64DataURI(files: FileList) {
+    const self = this;
+    if (files && files[0]) {
       const fileReader = new FileReader();
-      self.originalFileName = el.files[0].name;
+      self.originalFileName = files[0].name;
       fileReader.addEventListener('load', function(loadedEvent: any) {
         self.uploadedFileBase64URI = loadedEvent.target.result;
         // Upload via backend
@@ -41,7 +84,7 @@ export class UploadPageComponent implements OnInit {
           self.runCompressCommand();
         });
       });
-      fileReader.readAsDataURL(el.files[0]);
+      fileReader.readAsDataURL(files[0]);
     }
   }
 

@@ -1,7 +1,21 @@
 <div class="container">
-  <input type="file" (change)="processFileToBase64DataURI($event)">
-  <p *ngIf="originalFileName && !compressDone!">COMPRESSING PLEASE WAIT ...</p>
-  <p *ngIf="originalFileName && compressDone!">COMPRESSING DONE :)</p>
+  <div
+    class="drop-container"
+    [class.drop-container---drag-over]="uiStateDragOver"
+    [class.drop-container---drag-leave]="uiStateDragLeave"
+    [class.drop-container---drag-drop]="uiStateDrop"
+    (drop)="handleDrop($event)"
+    (dragover)="handleDragOver($event)"
+    (dragleave)="handleDragLeave($event)"
+  >
+
+    <input
+      type="file"
+      multiple="multiple"
+      (change)="handleFileChange($event)"
+    >
+  </div>
+  <app-spinner *ngIf="originalFileName && !compressDone!"></app-spinner>
   <div *ngIf="originalFileName">
     <h3>{{originalFileName}}</h3>
     <app-terminal-output
