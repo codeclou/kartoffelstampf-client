@@ -64,6 +64,9 @@ export class BackendService {
       const kartoffelstampfTerminalOutputEntry: KartoffelstampfTerminalOutputEntry = JSON.parse(event.data);
       subject.next(kartoffelstampfTerminalOutputEntry);
     };
+    ws.onerror = function (event) {
+      console.log('websocket onerror', event);
+    };
     ws.onclose = function (event) {
       subject.complete();
     };

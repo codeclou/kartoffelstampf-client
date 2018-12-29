@@ -18,6 +18,7 @@ import { HttpErrorResponse } from '@angular/common/http';
       display:flex;
       justify-content: center;
       align-items: center;
+      transition: border-color 0.5s linear;
     }`,
     `.drop-container---drag-over { border-color: #0DFF0D; }`,
     `.drop-container---drag-leave { border-color: #ccc; }`,
@@ -70,12 +71,17 @@ export class UploadPageComponent implements OnInit, OnDestroy {
   }
 
   handleDrop(event: any) {
-    this.uiStateDragOver = false;
-    this.uiStateDragLeave = false;
-    this.uiStateDrop = true;
+    const self = this;
+    self.uiStateDragOver = false;
+    self.uiStateDragLeave = false;
+    self.uiStateDrop = true;
+    setTimeout(() => {
+      self.uiStateDrop = false;
+      self.uiStateDragLeave = true;
+    }, 400);
     event.stopPropagation();
     event.preventDefault();
-    this.processFileToBase64DataURI(<FileList>event.dataTransfer.files);
+    self.processFileToBase64DataURI(<FileList>event.dataTransfer.files);
   }
 
   handleDragOver(event: Event) {
