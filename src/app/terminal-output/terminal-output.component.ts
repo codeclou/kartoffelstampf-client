@@ -7,34 +7,30 @@ import { TerminalLine } from '../types/kartoffelstampf-client';
   styles: [
     `.stdout {
       width: 90%;
-      background-color: #555;
+      background-color: #444;
       color: #efefef;
-      padding: 8px;
-      border-left: 10px solid green;
+      padding: 4px 8px;
+      font-size:12px;
+      border-left: 4px solid green;
       font-family: "Lucida Console", Monaco, monospace;
     }`,
     `.cmd {
       width: 90%;
       background-color: #333;
       color: #fff;
+      font-weight:bold;
+      font-size:14px;
       padding: 8px;
-      border-left: 10px solid #333;
+      border-left: 4px solid #333;
       font-family: "Lucida Console", Monaco, monospace;
     }`,
     `.stderr {
       width: 90%;
-      background-color: #555;
+      background-color: #444;
       color: #efefef;
-      padding: 8px;
-      border-left: 10px solid red;
-      font-family: "Lucida Console", Monaco, monospace;
-    }`,
-    `.processStatus {
-      width: 90%;
-      background-color: #555;
-      color: #efefef;
-      padding: 8px;
-      border-left: 10px solid blue;
+      font-size:12px;
+      padding: 4px 8px;
+      border-left: 4px solid red;
       font-family: "Lucida Console", Monaco, monospace;
     }`,
   ]

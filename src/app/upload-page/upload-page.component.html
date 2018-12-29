@@ -26,14 +26,57 @@
     headline="Compress and Download"
     [isActive]="activeStep == 2"
   ></app-numbered-headline>
-  <app-spinner *ngIf="originalFileName && !compressDone!"></app-spinner>
-  <div *ngIf="originalFileName">
-    <h3>{{originalFileName}}</h3>
-    <app-terminal-output
-      [temporaryFileName]="temporaryFileName"
-      [originalFileName]="originalFileName"
-      [lines]="terminalLines"
-    ></app-terminal-output>
-  </div>
-  <a *ngIf="compressDone == true" [href]="getDownloadUrl()">download</a>
+  <table *ngIf="activeStep == 2" class="fileTable">
+    <tr>
+      <th>File</th>
+      <th>Original Size</th>
+      <th>Compressed Size</th>
+      <th>Saving</th>
+      <th>Download</th>
+    </tr>
+    <ng-container *ngFor="let imageCompressJob of imageCompressJobs">
+      <tr>
+        <td class="expandable" (click)="imageCompressJob.terminalLinesExpanded = !imageCompressJob.terminalLinesExpanded">
+          <cloukit-icon
+            style="height:24px"
+            *ngIf="imageCompressJob.terminalLinesExpanded == true"
+            foregroundIcon="chevronDown"
+            foregroundIconColor="#777"
+          ></cloukit-icon>
+          <cloukit-icon
+            style="height:24px"
+            *ngIf="imageCompressJob.terminalLinesExpanded == false"
+            foregroundIcon="chevronRight"
+            foregroundIconColor="#777"
+          ></cloukit-icon>
+          <strong>{{imageCompressJob.originalFileName}}</strong>
+        </td>
+        <td>{{imageCompressJob.originalSize | fileSize}}</td>
+        <td>{{imageCompressJob.compressedSize ? (imageCompressJob.compressedSize | fileSize) : '...'}}</td>
+        <td>
+          {{imageCompressJob.compressedSize ? (1 - (imageCompressJob.compressedSize / imageCompressJob.originalSize) | percent) : '...'}}
+        </td>
+        <td>
+          <app-spinner *ngIf="!imageCompressJob.compressDone"></app-spinner>
+          <a
+            *ngIf="imageCompressJob.compressDone == true"
+            [href]="getDownloadUrl(imageCompressJob)"
+            (click)="imageCompressJob.downloadClicked = true"
+            class="download"
+            [class.download---clicked]="imageCompressJob.downloadClicked"
+            download="download"
+          >download</a>
+        </td>
+      </tr>
+      <tr *ngIf="imageCompressJob.terminalLinesExpanded == true">
+        <td colspan="5" class="terminal-line-td">
+          <app-terminal-output
+            [temporaryFileName]="imageCompressJob.temporaryFileName"
+            [originalFileName]="imageCompressJob.originalFileName"
+            [lines]="imageCompressJob.terminalLines"
+          ></app-terminal-output>
+        </td>
+      </tr>
+    </ng-container>
+  </table>
 </div>

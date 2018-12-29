@@ -18,3 +18,15 @@ export class TerminalLine {
     this.clearLine = this.json.clearLine;
   }
 }
+
+export class CompressImageJobItem {
+  terminalLines: TerminalLine[] = [];
+  uploadedFileBase64URI: string;
+  originalFileName: string;
+  temporaryFileName: string;
+  originalSize: number;
+  compressedSize: number;
+  compressDone = false;
+  downloadClicked = false;
+  terminalLinesExpanded = false;
+}

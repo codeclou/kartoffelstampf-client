@@ -1,6 +1,6 @@
 {
   "name": "kartoffelstampf-client",
-  "version": "0.1.2",
+  "version": "2.0.0",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
@@ -19,6 +19,7 @@
     "@angular/platform-browser": "7.1.4",
     "@angular/platform-browser-dynamic": "7.1.4",
     "@angular/router": "7.1.4",
+    "@cloukit/icon": "^7.0.0",
     "anser": "1.2.7",
     "core-js": "^2.4.1",
     "rxjs": "^6.3.3",

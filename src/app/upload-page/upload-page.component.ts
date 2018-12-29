@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { BackendService } from '../services/backend.service';
 import { KartoffelstampfTerminalOutputEntry, KartoffelstampfCompressInstruction } from '../types/kartoffelstampf-server';
-import { TerminalLine } from '../types/kartoffelstampf-client';
+import { TerminalLine, CompressImageJobItem } from '../types/kartoffelstampf-client';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 
@@ -20,17 +20,33 @@ import { Subject } from 'rxjs';
     `.drop-container---drag-over { border-color: #0DFF0D; }`,
     `.drop-container---drag-leave { border-color: #ccc; }`,
     `.drop-container---drag-drop { border-color: #00A200; }`,
+    `.fileTable {
+      width:100%;
+    }`,
+    `.fileTable th {
+      font-weight:bold;
+      text-align:left;
+      color:#999;
+      font-size:12px;
+      padding-bottom:8px;
+    }`,
+    `.download { background-color:#00A200; color:#fff; padding:3px 6px; text-decoration: none; }`,
+    `.download---clicked { background-color:#777; }`,
+    `.terminal-line-td { padding:5px 10px 20px 27px; }`,
+    `.expandable {
+      cursor: pointer;
+      display:flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+     }`,
    ],
   providers: [BackendService]
 })
 export class UploadPageComponent implements OnInit, OnDestroy {
 
   preDestroy = new Subject<boolean>();
-  terminalLines: TerminalLine[] = [];
-  uploadedFileBase64URI: string;
-  originalFileName: string;
-  temporaryFileName: string;
-  compressDone = false;
+  imageCompressJobs: CompressImageJobItem[] = [];
 
   uiStateDrop = false;
   uiStateDragOver = false;
@@ -84,53 +100,61 @@ export class UploadPageComponent implements OnInit, OnDestroy {
   processFileToBase64DataURI(files: FileList) {
     const self = this;
     if (files && files[0]) {
-      const fileReader = new FileReader();
-      self.originalFileName = files[0].name;
-      fileReader.addEventListener('load', function(loadedEvent: any) {
-        self.uploadedFileBase64URI = loadedEvent.target.result;
-        // Upload via backend
-        self.backendService
-        .uploadImage(self.uploadedFileBase64URI, 'PNG')
-        .pipe(
-          takeUntil(self.preDestroy)
-        )
-        .subscribe(uploadResponse => {
-          console.log(uploadResponse.fileName);
-          self.temporaryFileName = uploadResponse.fileName;
-          self.runCompressCommand();
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const job = new CompressImageJobItem();
+        const fileReader = new FileReader();
+        job.originalFileName = file.name;
+        job.originalSize = file.size;
+        fileReader.addEventListener('load', function(loadedEvent: any) {
+          job.uploadedFileBase64URI = loadedEvent.target.result;
+          // Upload via backend
+          self.backendService
+            .uploadImage(job.uploadedFileBase64URI, 'PNG')
+            .pipe(
+              takeUntil(self.preDestroy)
+            )
+            .subscribe(uploadResponse => {
+              job.temporaryFileName = uploadResponse.fileName;
+              self.imageCompressJobs.push(job);
+              self.runCompressCommand(job);
+            });
         });
-      });
-      fileReader.readAsDataURL(files[0]);
+        fileReader.readAsDataURL(file);
+      }
       self.activeStep = 2;
     }
   }
 
-  getDownloadUrl() {
-    return this.backendService.getDownloadUrl(this.temporaryFileName, this.originalFileName);
+  getDownloadUrl(job: CompressImageJobItem) {
+    return this.backendService.getDownloadUrl(job.temporaryFileName, job.originalFileName);
   }
 
-  runCompressCommand() {
+  runCompressCommand(job: CompressImageJobItem) {
     const self = this;
     self.backendService.runCompressCommand(<KartoffelstampfCompressInstruction>{
       compressType: KartoffelstampfCompressInstruction.COMPRESS_TYPE_LOSSLESS,
-      temporaryFileName: this.temporaryFileName,
+      temporaryFileName: job.temporaryFileName,
     })
     .pipe(
       finalize(() => {
-        console.log('compress-done!');
-        self.compressDone = true;
+        job.compressDone = true;
       }),
       takeUntil(self.preDestroy)
     )
     .subscribe(data => {
-      const terminalLine = new TerminalLine(data);
-      const previousTerminalLine = self.terminalLines[self.terminalLines.length - 1];
-      if (previousTerminalLine !== undefined &&
-          previousTerminalLine.clearLine === true &&
-          terminalLine.clearLine === true) {
-        self.terminalLines.pop();
+      if (data.type === 'compressResult') {
+        job.compressedSize = data.payload['compressedSize'];
+      } else {
+        const terminalLine = new TerminalLine(data);
+        const previousTerminalLine = job.terminalLines[job.terminalLines.length - 1];
+        if (previousTerminalLine !== undefined &&
+            previousTerminalLine.clearLine === true &&
+            terminalLine.clearLine === true) {
+          job.terminalLines.pop();
+        }
+        job.terminalLines.push(terminalLine);
       }
-      self.terminalLines.push(terminalLine);
     });
   }
 
