@@ -29,4 +29,5 @@ export class CompressImageJobItem {
   compressDone = false;
   downloadClicked = false;
   terminalLinesExpanded = false;
+  serverError: string = null;
 }

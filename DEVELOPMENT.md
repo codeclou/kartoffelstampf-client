@@ -1,5 +1,17 @@
 # Development
 
+
+
+```
+yarn start
+```
+
+GoTo http://localhost:4200 and enter in console `localStorage.setItem('LOCAL_DEV', true);`
+
+----
+
+&nbsp;
+
 ### CI and Releasing
 
 Git Tagging

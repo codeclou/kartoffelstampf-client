@@ -57,7 +57,10 @@
           {{imageCompressJob.compressedSize ? (1 - (imageCompressJob.compressedSize / imageCompressJob.originalSize) | percent) : '...'}}
         </td>
         <td>
-          <app-spinner *ngIf="!imageCompressJob.compressDone"></app-spinner>
+          <app-spinner *ngIf="imageCompressJob.serverError == null && !imageCompressJob.compressDone"></app-spinner>
+          <span class="error" *ngIf="imageCompressJob.serverError != null">
+            {{imageCompressJob.serverError}}
+          </span>
           <a
             *ngIf="imageCompressJob.compressDone == true"
             [href]="getDownloadUrl(imageCompressJob)"
@@ -71,6 +74,7 @@
       <tr *ngIf="imageCompressJob.terminalLinesExpanded == true">
         <td colspan="5" class="terminal-line-td">
           <app-terminal-output
+            *ngIf="imageCompressJob.serverError == null"
             [temporaryFileName]="imageCompressJob.temporaryFileName"
             [originalFileName]="imageCompressJob.originalFileName"
             [lines]="imageCompressJob.terminalLines"

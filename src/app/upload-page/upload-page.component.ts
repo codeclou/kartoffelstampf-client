@@ -3,7 +3,9 @@ import { BackendService } from '../services/backend.service';
 import { KartoffelstampfTerminalOutputEntry, KartoffelstampfCompressInstruction } from '../types/kartoffelstampf-server';
 import { TerminalLine, CompressImageJobItem } from '../types/kartoffelstampf-client';
 import { finalize, takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { Subject, throwError, of, EMPTY } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-upload-page',
@@ -40,6 +42,7 @@ import { Subject } from 'rxjs';
       justify-content: flex-start;
       align-items: center;
      }`,
+     `.error { display:block; padding:2px 4px; background-color: #A60000; color:#fff;}`,
    ],
   providers: [BackendService]
 })
@@ -112,9 +115,14 @@ export class UploadPageComponent implements OnInit, OnDestroy {
           self.backendService
             .uploadImage(job.uploadedFileBase64URI, 'PNG')
             .pipe(
-              takeUntil(self.preDestroy)
+              takeUntil(self.preDestroy),
+              catchError((e: any) => {
+                self.imageCompressJobs.push(job);
+                job.serverError = e.error.error;
+                return EMPTY;
+              })
             )
-            .subscribe(uploadResponse => {
+            .subscribe((uploadResponse: any) => {
               job.temporaryFileName = uploadResponse.fileName;
               self.imageCompressJobs.push(job);
               self.runCompressCommand(job);

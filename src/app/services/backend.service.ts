@@ -19,33 +19,43 @@ export type FnOnMessageCallback = (arg1: KartoffelstampfTerminalOutputEntry) => 
 @Injectable()
 export class BackendService {
 
-  private static WEB_SOCKET_COMPRESS_URL = `ws://${window.location.hostname}:9999/`;
-  private static REST_API_UPLOAD_URL = `http://${window.location.hostname}:9999/upload`;
-  private static REST_API_DOWNLOAD_URL = `http://${window.location.hostname}:9999/download`;
+  private restApiBaseUrl: string;
+  private webSocketBaseUrl: string;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    // Autodetect URLs
+    const hostname = window.location.hostname;
+    const protocol = window.location.protocol;
+    const port = window.location.port;
+    if (protocol === 'https:') {
+      this.restApiBaseUrl = `https://${hostname}${port ? ':' + port : ''}`;
+      this.webSocketBaseUrl = `wss://${hostname}${port ? ':' + port : ''}`;
+    } else {
+      this.restApiBaseUrl = `http://${hostname}${port ? ':' + port : ''}`;
+      this.webSocketBaseUrl = `ws://${hostname}${port ? ':' + port : ''}`;
+    }
+    //
+    // Note on localhost we need to overwrite the URLs
+    //
+    if (localStorage && localStorage.getItem('LOCAL_DEV')) {
+      this.restApiBaseUrl = `http://localhost:9999`;
+      this.webSocketBaseUrl = `ws://localhost:9999`;
+    }
+  }
 
   getDownloadUrl(temporaryFileName: string, originalFileName: string) {
-    return `${BackendService.REST_API_DOWNLOAD_URL}/${temporaryFileName}/${originalFileName}`;
+    return `${this.restApiBaseUrl}/download/${temporaryFileName}/${originalFileName}`;
   }
 
   uploadImage(base64Image: string, type: string) {
     return this.http.post<KartoffelstampfImageUploadResponse>(
-      BackendService.REST_API_UPLOAD_URL, {
+      `${this.restApiBaseUrl}/upload`, {
         contentDataUri: base64Image,
-      } as KartoffelstampfImageUploadRequest, httpOptions)
-    .pipe(
-      catchError((e: HttpErrorResponse) => {
-        console.log(e);
-        return throwError(
-          'Something bad happened; please try again later.'
-        );
-      })
-    );
+      } as KartoffelstampfImageUploadRequest, httpOptions);
   }
 
   runCompressCommand(compressInstruction: KartoffelstampfCompressInstruction): Observable<KartoffelstampfTerminalOutputEntry> {
-    const ws = new WebSocket(BackendService.WEB_SOCKET_COMPRESS_URL);
+    const ws = new WebSocket(`${this.webSocketBaseUrl}/`);
     const subject = new Subject<KartoffelstampfTerminalOutputEntry>();
     ws.onopen = function (event) {
       ws.send(JSON.stringify(compressInstruction));
