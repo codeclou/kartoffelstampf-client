@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { BackendService } from '../services/backend.service';
 import { KartoffelstampfTerminalOutputEntry, KartoffelstampfCompressInstruction } from '../types/kartoffelstampf-server';
 import { TerminalLine, CompressImageJobItem } from '../types/kartoffelstampf-client';
-import { finalize, takeUntil } from 'rxjs/operators';
+import { finalize, takeUntil, takeWhile, endWith } from 'rxjs/operators';
 import { Subject, throwError, of, EMPTY } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -57,6 +57,8 @@ export class UploadPageComponent implements OnInit, OnDestroy {
   uiStateDragLeave = true;
 
   activeStep = 1;
+  concurrentJobLimit = 5;
+  concurrentJobCount = 0;
 
   constructor(private backendService: BackendService) { }
 
@@ -146,30 +148,35 @@ export class UploadPageComponent implements OnInit, OnDestroy {
 
   runCompressCommand(job: CompressImageJobItem) {
     const self = this;
-    self.backendService.runCompressCommand(<KartoffelstampfCompressInstruction>{
-      compressType: KartoffelstampfCompressInstruction.COMPRESS_TYPE_LOSSLESS,
-      temporaryFileName: job.temporaryFileName,
-    })
-    .pipe(
-      finalize(() => {
-        job.compressDone = true;
-      }),
-      takeUntil(self.preDestroy)
-    )
-    .subscribe(data => {
-      if (data.type === 'compressResult') {
-        job.compressedSize = data.payload['compressedSize'];
-      } else {
-        const terminalLine = new TerminalLine(data);
-        const previousTerminalLine = job.terminalLines[job.terminalLines.length - 1];
-        if (previousTerminalLine !== undefined &&
-            previousTerminalLine.clearLine === true &&
-            terminalLine.clearLine === true) {
-          job.terminalLines.pop();
-        }
-        job.terminalLines.push(terminalLine);
+    const intervallId = setInterval(function() {
+      if (self.concurrentJobCount < self.concurrentJobLimit) {
+        clearInterval(intervallId);
+        self.concurrentJobCount = self.concurrentJobCount + 1;
+        self.backendService.runCompressCommand(<KartoffelstampfCompressInstruction>{
+          compressType: KartoffelstampfCompressInstruction.COMPRESS_TYPE_LOSSLESS,
+          temporaryFileName: job.temporaryFileName,
+        })
+        .pipe(
+          finalize(() => self.concurrentJobCount = self.concurrentJobCount - 1),
+          takeUntil(self.preDestroy),
+        )
+        .subscribe(data => {
+          if (data.type === 'compressResult') {
+            job.compressedSize = data.payload['compressedSize'];
+            job.compressDone = true;
+          } else {
+            const terminalLine = new TerminalLine(data);
+            const previousTerminalLine = job.terminalLines[job.terminalLines.length - 1];
+            if (previousTerminalLine !== undefined &&
+                previousTerminalLine.clearLine === true &&
+                terminalLine.clearLine === true) {
+              job.terminalLines.pop();
+            }
+            job.terminalLines.push(terminalLine);
+          }
+        });
       }
-    });
+     }, 300);
   }
 
 }

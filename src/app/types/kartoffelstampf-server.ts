@@ -2,13 +2,10 @@
 // Typings: https://github.com/codeclou/karteoffelstampf-server
 //
 
-export interface KartoffelstampfTerminalOutputEntryPayload {
-  text: string;
-}
-
 export interface KartoffelstampfTerminalOutputEntry {
-  payload: KartoffelstampfTerminalOutputEntryPayload;
+  payload: any;
   type: string;
+  compressInstruction: KartoffelstampfCompressInstruction;
 }
 
 export interface KartoffelstampfImageUploadRequest {
